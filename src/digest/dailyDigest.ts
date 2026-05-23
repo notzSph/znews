@@ -1,0 +1,83 @@
+import type { Category, MacroLabel, NewsEvent, Ticker } from "../domain/types.js";
+import { formatTapeMarkdown } from "../format/eventTape.js";
+
+export interface DigestSummary {
+  eventCount: number;
+  categories: Array<{ category: Category; count: number }>;
+  tickers: Array<{ ticker: Ticker; count: number }>;
+  macroLabels: Array<{ label: MacroLabel; count: number }>;
+  topEvents: NewsEvent[];
+  markdown: string;
+}
+
+export function createDigest(events: NewsEvent[], limit = 5): DigestSummary {
+  const sortedEvents = [...events].sort((left, right) => right.publishedAt.getTime() - left.publishedAt.getTime());
+  const topEvents = sortedEvents.slice(0, limit);
+
+  const summary = {
+    eventCount: events.length,
+    categories: countCategories(events.map((event) => event.category)),
+    tickers: countTickers(events.flatMap((event) => [...event.impact.direct, ...event.impact.secondary])),
+    macroLabels: countMacroLabels(events.flatMap((event) => event.macroLabels)),
+    topEvents,
+  };
+
+  return {
+    ...summary,
+    markdown: formatDigestMarkdown(summary),
+  };
+}
+
+function formatDigestMarkdown(summary: Omit<DigestSummary, "markdown">): string {
+  const lines = [
+    "**zNews Market Digest**",
+    `Events: **${summary.eventCount}**`,
+    `Categories: ${formatCounts(summary.categories)}`,
+    `Tickers: ${formatCounts(summary.tickers)}`,
+    `Macro: ${formatCounts(summary.macroLabels)}`,
+    "",
+    "**Top Events**",
+  ];
+
+  for (const event of summary.topEvents) {
+    lines.push("", formatTapeMarkdown(event));
+  }
+
+  return lines.join("\n");
+}
+
+function countCategories(values: Category[]): Array<{ category: Category; count: number }> {
+  return countValues(values).map(({ value, count }) => ({ category: value, count }));
+}
+
+function countTickers(values: Ticker[]): Array<{ ticker: Ticker; count: number }> {
+  return countValues(values).map(({ value, count }) => ({ ticker: value, count }));
+}
+
+function countMacroLabels(values: MacroLabel[]): Array<{ label: MacroLabel; count: number }> {
+  return countValues(values).map(({ value, count }) => ({ label: value, count }));
+}
+
+function countValues<T extends string>(values: T[]): Array<{ value: T; count: number }> {
+  const counts = new Map<T, number>();
+  for (const value of values) {
+    counts.set(value, (counts.get(value) ?? 0) + 1);
+  }
+
+  return Array.from(counts.entries())
+    .sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]))
+    .map(([value, count]) => ({ value, count }));
+}
+
+function formatCounts<T extends { count: number }>(items: T[]): string {
+  if (items.length === 0) return "**none**";
+
+  return items
+    .slice(0, 6)
+    .map((item) => {
+      const [label] = Object.entries(item).find(([key]) => key !== "count") ?? ["", ""];
+      const value = item[label as keyof T];
+      return `**${String(value)}** (${item.count})`;
+    })
+    .join(", ");
+}
