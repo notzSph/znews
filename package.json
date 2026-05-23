@@ -1,0 +1,35 @@
+{
+  "name": "znews",
+  "version": "0.1.0",
+  "private": true,
+  "description": "zNews - market-aware breaking news event tape for Discord.",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "dry-run": "tsx src/index.ts dry-run",
+    "dry-run:live": "tsx src/index.ts dry-run:live",
+    "digest:dry-run": "tsx src/index.ts digest:dry-run",
+    "sources:check": "tsx src/index.ts sources:check",
+    "migrate": "tsx src/db/migrate.ts",
+    "poll:once": "tsx src/index.ts poll-once",
+    "poll": "tsx src/index.ts poll",
+    "start": "node dist/index.js",
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@discordjs/rest": "^2.6.0",
+    "discord-api-types": "^0.38.34",
+    "dotenv": "^17.2.3",
+    "fast-xml-parser": "^5.3.2",
+    "pg": "^8.21.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "@types/pg": "^8.20.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.14"
+  }
+}
