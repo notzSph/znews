@@ -7,6 +7,7 @@ export type Category =
   | "China/Asia"
   | "Macro/Central Banks"
   | "Energy"
+  | "Resources/EM"
   | "Market Structure"
   | "Cyber/Security"
   | "Weather/Supply Shock";
@@ -31,10 +32,17 @@ export type Ticker =
   | "DXY"
   | "GC"
   | "SI"
+  | "HG"
   | "CL"
   | "BRN"
   | "NG"
   | "RB"
+  | "ZW"
+  | "ZC"
+  | "ZS"
+  | "CC"
+  | "KC"
+  | "SB"
   | "FGBL"
   | "ZN";
 
@@ -67,6 +75,10 @@ export interface NewsSource {
   id: string;
   name: string;
   url: string;
+  translate?: {
+    from?: string;
+    to: string;
+  };
 }
 
 export interface RawNewsItem {

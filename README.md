@@ -217,26 +217,88 @@ Includes:
 Free RSS/Atom/RDF sources currently wired:
 
 - BBC News
+- New York Times World
+- New York Times Business
+- NPR World
+- NPR Business
+- CBS News World
+- ABC News International
+- Sky News World
+- South China Morning Post World
+- South China Morning Post China
+- The Moscow Times
+- Meduza English
+- TASS English
+- Interfax Russia
+- Kommersant
+- The Kyiv Independent
+- Ukrainska Pravda English
+- Balkan Insight
+- Notes from Poland
 - ANSA Top News
 - ANSA World
 - ANSA Economy
 - Al Jazeera
+- Middle East Eye
+- The New Arab
+- The Times of Israel
+- Al-Monitor
 - France 24
 - The Guardian World
 - Deutsche Welle
 - Politico Europe
 - UN News
+- Africanews
+- AllAfrica
+- Resource World
+- Buenos Aires Times
+- Brazil Reports
+- The Rio Times
+- MercoPress
+- Latin America Reports
+- GDACS Alerts
+- USGS Significant Earthquakes
+- NASA Earth Observatory
+- NOAA News
+- NOAA Climate.gov
+- NOAA NCEI News
 - ECB Press Releases
 - European Commission
 - Federal Reserve Press Releases
+- Federal Reserve Speeches
+- Federal Reserve Testimony
+- ECB Blog
+- US Census Economic Indicators
 - Bank of England
+- Bank of Japan
 - EIA Energy
+- Grain Central
+- Hellenic Shipping News
+- Splash247
+- gCaptain
+- Bloomberg Markets
+- MarketWatch Top Stories
+- OilPrice.com
+- CISA News
+- CISA Advisories
+- BleepingComputer
+- The Record
+- The Japan Times Business
+- Defense News
+- Breaking Defense
 
 Known skipped candidates for now:
 
 - AP: blocked by edge protection from this runtime.
 - CNBC: blocked by edge protection from this runtime.
 - IMF: tested endpoint returned HTML rather than a clean feed.
+- FAO/WFP/WMO: candidate URLs tested from this runtime did not return clean RSS XML yet; keep as future source work unless a stable feed endpoint is confirmed.
+- Several official candidates, including US Treasury, OFAC, Council of the EU, WTO, OPEC, BIS, USTR, USDA, and PBOC, were skipped because candidate feed URLs returned HTML, 403/404/503 responses, or non-feed payloads from this runtime.
+- Bank of Canada, Reserve Bank of India, and Investing.com feeds were reachable but skipped because their parsed item dates were future-dated during validation.
+- KrebsOnSecurity was skipped because it intermittently returned 403 from this runtime. Nikkei Asia was skipped because the feed parsed to zero usable items.
+- bne IntelliNews, Iran International, Mining Weekly, MINING.com, Africa Energy, BNamericas, teleSUR English, AgWeb, and selected Reuters feeds were skipped because candidate URLs returned blocking pages, HTML, 4xx/5xx responses, payload-size errors, or fetch failures from this runtime.
+
+Cyrillic feeds configured with `translate` are translated to English before classification and posting. If translation fails, zNews keeps the original headline instead of dropping the item.
 
 ---
 
@@ -250,6 +312,11 @@ zNews keeps:
 - rates and central-bank headlines
 - inflation-sensitive headlines
 - energy and commodity shock headlines
+- Africa and Latin America resource extraction, mining, export, nationalization, and security-risk headlines
+- agri/food commodity shock headlines with direct grain and soft-commodity impact
+- shipping, port, canal, tanker, and supply-chain disruption headlines
+- cyber/security incidents with infrastructure, cloud, exploit, payment, or market disruption channels
+- ENSO / El Nino / La Nina climate shock headlines with crop, food-price, drought, flood, monsoon, or infrastructure channels
 - geopolitical escalation headlines
 - Italy spread / fiscal-risk headlines
 - official institutional updates
@@ -290,10 +357,17 @@ UJ
 DXY
 GC
 SI
+HG
 CL
 BRN
 NG
 RB
+ZW
+ZC
+ZS
+CC
+KC
+SB
 FGBL
 ZN
 ```

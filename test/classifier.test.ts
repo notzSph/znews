@@ -245,4 +245,88 @@ describe("classifyNewsItem", () => {
     expect(result.category).toBe("Italy");
     expect(result.impact.direct).toEqual(expect.arrayContaining(["FESX", "FDAX", "FGBL", "EU"]));
   });
+
+  it("tags El Nino and Super Nino headlines as weather supply-shock risk", () => {
+    const result = classifyNewsItem({
+      ...baseItem,
+      id: "enso-super-nino",
+      title: "NOAA warns Super El Nino could intensify drought and crop risks across Asia",
+      url: "https://example.com/enso-super-nino",
+      publishedAt: new Date("2026-06-29T12:00:00Z"),
+    });
+
+    expect(result.category).toBe("Weather/Supply Shock");
+    expect(result.impact.direct).toEqual(expect.arrayContaining(["ZW", "ZC", "ZS", "CC", "KC", "SB", "CL", "BRN", "NG", "RB"]));
+    expect(result.macroLabels).toEqual(expect.arrayContaining(["weather / infrastructure", "supply shock", "inflation", "risk-off"]));
+  });
+
+  it("tags agricultural commodity shocks with direct softs and grains impact", () => {
+    const result = classifyNewsItem({
+      ...baseItem,
+      id: "agri-shock",
+      title: "Drought threatens cocoa, coffee and wheat harvest as food prices rise",
+      url: "https://example.com/agri-shock",
+      publishedAt: new Date("2026-06-29T12:00:00Z"),
+    });
+
+    expect(result.category).toBe("Weather/Supply Shock");
+    expect(result.impact.direct).toEqual(expect.arrayContaining(["ZW", "CC", "KC"]));
+    expect(result.impact.secondary).toEqual(expect.arrayContaining(["DXY", "GC", "ES", "NQ"]));
+  });
+
+  it("tags Africa and LatAm resource extraction risk with direct metals and energy impact", () => {
+    const result = classifyNewsItem({
+      ...baseItem,
+      id: "resources-em",
+      title: "Peru copper mine strike threatens exports as gold output falls in Ghana",
+      url: "https://example.com/resources-em",
+      publishedAt: new Date("2026-06-29T12:00:00Z"),
+    });
+
+    expect(result.category).toBe("Resources/EM");
+    expect(result.impact.direct).toEqual(expect.arrayContaining(["GC", "SI", "HG", "CL", "BRN"]));
+    expect(result.impact.secondary).toEqual(expect.arrayContaining(["DXY", "ES", "NQ"]));
+  });
+
+  it("tags shipping disruption with direct energy impact and broad risk spillover", () => {
+    const result = classifyNewsItem({
+      ...baseItem,
+      id: "shipping-shock",
+      title: "Red Sea shipping disruption forces tankers to reroute, lifting freight delays",
+      url: "https://example.com/shipping-shock",
+      publishedAt: new Date("2026-06-29T12:00:00Z"),
+    });
+
+    expect(result.category).toBe("Weather/Supply Shock");
+    expect(result.impact.direct).toEqual(expect.arrayContaining(["CL", "BRN", "RB", "NG"]));
+    expect(result.impact.secondary).toEqual(expect.arrayContaining(["ES", "NQ", "DXY", "GC"]));
+  });
+
+  it("tags cyber incidents with direct tech/equity impact", () => {
+    const result = classifyNewsItem({
+      ...baseItem,
+      id: "cyber-risk",
+      title: "CISA warns ransomware exploit is disrupting cloud payment infrastructure",
+      url: "https://example.com/cyber-risk",
+      publishedAt: new Date("2026-06-29T12:00:00Z"),
+    });
+
+    expect(result.category).toBe("Cyber/Security");
+    expect(result.impact.direct).toEqual(expect.arrayContaining(["NQ", "ES"]));
+    expect(result.macroLabels).toEqual(expect.arrayContaining(["cyber / security", "risk-off"]));
+  });
+
+  it("tags Japan macro headlines with direct yen and rates impact", () => {
+    const result = classifyNewsItem({
+      ...baseItem,
+      id: "japan-macro",
+      title: "Bank of Japan weighs rate hike as yen intervention risk returns",
+      url: "https://example.com/japan-macro",
+      publishedAt: new Date("2026-06-29T12:00:00Z"),
+    });
+
+    expect(result.category).toBe("Macro/Central Banks");
+    expect(result.impact.direct).toEqual(expect.arrayContaining(["UJ", "ZN", "DXY", "GC"]));
+    expect(result.impact.secondary).toEqual(expect.arrayContaining(["NQ", "ES", "FESX", "FDAX"]));
+  });
 });

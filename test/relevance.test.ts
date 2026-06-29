@@ -150,4 +150,30 @@ describe("isMarketRelevant", () => {
     expect(event.category).toBe("Middle East");
     expect(isMarketRelevant(event, { now: new Date("2026-05-22T07:35:00Z"), maxAgeHours: 48 })).toBe(false);
   });
+
+  it("keeps ENSO headlines with crop or infrastructure supply-shock channels", () => {
+    const event = createEventFromRawItem({
+      ...baseItem,
+      id: "enso-supply-shock",
+      title: "El Nino strengthens as drought threatens rice and cocoa crops",
+      url: "https://example.com/enso-supply-shock",
+      publishedAt: new Date("2026-06-29T12:00:00Z"),
+    });
+
+    expect(event.category).toBe("Weather/Supply Shock");
+    expect(isMarketRelevant(event, { now: new Date("2026-06-29T13:00:00Z"), maxAgeHours: 48 })).toBe(true);
+  });
+
+  it("keeps cyber incidents with infrastructure or exploit channels", () => {
+    const event = createEventFromRawItem({
+      ...baseItem,
+      id: "cyber-security",
+      title: "CISA warns critical infrastructure ransomware exploit is disrupting cloud services",
+      url: "https://example.com/cyber-security",
+      publishedAt: new Date("2026-06-29T12:00:00Z"),
+    });
+
+    expect(event.category).toBe("Cyber/Security");
+    expect(isMarketRelevant(event, { now: new Date("2026-06-29T13:00:00Z"), maxAgeHours: 48 })).toBe(true);
+  });
 });

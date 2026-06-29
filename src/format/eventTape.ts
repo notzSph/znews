@@ -1,4 +1,4 @@
-import type { NewsEvent, Ticker } from "../domain/types.js";
+import type { NewsEvent, StatusLabel, Ticker } from "../domain/types.js";
 
 const dateFormatter = new Intl.DateTimeFormat("en-GB", {
   timeZone: "America/New_York",
@@ -41,7 +41,7 @@ export function formatTapeMarkdown(event: NewsEvent): string {
     `📚 • **${event.category}**`,
     `🚨 • **Direct:** ${direct}`,
     `🔔 • **Secondary:** ${secondary}`,
-    `⚠️ • \`${event.status}\``,
+    `${formatStatusPrefix(event.status)} \`${event.status}\``,
     `🌍 • **Macro:** ${macro}`,
     `🗞️ • **Source:** [${escapeMarkdown(event.source.name)}](${event.url})`,
   ].join("\n");
@@ -72,6 +72,23 @@ function formatInlineCodeList(values: string[]): string {
 function formatTickerOrValue(value: string): string {
   const emoji = tickerEmoji[value as Ticker];
   return emoji ? `${emoji} **${value}**` : `**${value}**`;
+}
+
+function formatStatusPrefix(status: StatusLabel): string {
+  switch (status) {
+    case "single-source":
+      return "⚠️ •";
+    case "confirmed":
+      return "✅ •";
+    case "official":
+      return "🏛️ •";
+    case "developing":
+      return "🟡 •";
+    case "claim":
+      return "❗ •";
+    case "correction":
+      return "🔁 •";
+  }
 }
 
 function escapeMarkdown(value: string): string {

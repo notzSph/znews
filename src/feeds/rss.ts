@@ -1,5 +1,6 @@
 import { XMLParser } from "fast-xml-parser";
 import type { NewsSource, RawNewsItem } from "../domain/types.js";
+import { translateRawItems } from "../translate/headline.js";
 
 const parser = new XMLParser({
   ignoreAttributes: false,
@@ -18,7 +19,7 @@ export async function fetchRssSource(source: NewsSource): Promise<RawNewsItem[]>
     throw new Error(`Failed to fetch ${source.name}: ${response.status} ${response.statusText}`);
   }
 
-  return parseRss(await response.text(), source);
+  return translateRawItems(parseRss(await response.text(), source));
 }
 
 export function parseRss(xml: string, source: NewsSource): RawNewsItem[] {

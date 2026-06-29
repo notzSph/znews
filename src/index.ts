@@ -1,6 +1,7 @@
 import "dotenv/config";
 import { readEnv } from "./config/env.js";
 import { createDbPool } from "./db/client.js";
+import { DiscordPresenceClient } from "./discord/presence.js";
 import { DiscordPoster } from "./discord/poster.js";
 import { createDigest } from "./digest/dailyDigest.js";
 import { dryRun } from "./worker/dryRun.js";
@@ -50,15 +51,18 @@ if (command === "dry-run" || command === "digest:dry-run" || command === "dry-ru
     token: env.discordToken,
     tapeChannelId: env.discordTapeChannelId,
   });
+  const presence = new DiscordPresenceClient({ token: env.discordToken });
 
   try {
     if (command === "poll") {
+      await presence.start();
       await pollLoop(pool, poster);
     } else {
       const result = await pollOnce({ pool, poster });
       console.log(`Poll complete: ${JSON.stringify(result)}`);
     }
   } finally {
+    await presence.stop();
     await pool.end();
   }
 } else {

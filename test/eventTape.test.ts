@@ -55,7 +55,7 @@ describe("formatTapeLine", () => {
         "📚 • **Middle East**",
         "🚨 • **Direct:** <:crudeoil:1294743881434533898> **CL** <:crudeoil:1294743881434533898> **BRN** <:crudeoil:1294743881434533898> **RB**",
         "🔔 • **Secondary:** <:gold:1294720270199951444> **GC** <:es:1294720279192535090> **ES** <:nq:1294720287262244904> **NQ**",
-        "⚠️ • `developing`",
+        "🟡 • `developing`",
         "🌍 • **Macro:** **supply shock** **risk-off**",
         "🗞️ • **Source:** [Test Source](https://example.com/hormuz)",
       ].join("\n"),
@@ -84,6 +84,7 @@ describe("formatTapeLine", () => {
 
     expect(formatTapeMarkdown(event)).toContain("🚨 • **Direct:** **none**");
     expect(formatTapeMarkdown(event)).toContain("🔔 • **Secondary:** **none**");
+    expect(formatTapeMarkdown(event)).toContain("⚠️ • `single-source`");
     expect(formatTapeMarkdown(event)).toContain("🌍 • **Macro:** **none**");
   });
 });
