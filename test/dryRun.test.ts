@@ -37,6 +37,8 @@ function createEvent(overrides: { id: string; headline: string; sourceId: string
     id: overrides.id,
     publishedAt: overrides.publishedAt,
     category: "US",
+    drivers: ["Geopolitics"],
+    transmissionChannels: ["FX", "Rates", "Equities"],
     headline: overrides.headline,
     status: "single-source",
     impact: {

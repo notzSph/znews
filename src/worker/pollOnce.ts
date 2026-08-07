@@ -7,6 +7,8 @@ import { fetchRssSource } from "../feeds/rss.js";
 import { isMarketRelevant } from "../filter/relevance.js";
 import { formatTapeMarkdown } from "../format/eventTape.js";
 import { DiscordPoster } from "../discord/poster.js";
+import { formatDriverBoard } from "../domain/driverBoard.js";
+import type { BoardThread } from "../domain/types.js";
 
 export interface PollOnceOptions {
   pool: pg.Pool;
@@ -55,10 +57,15 @@ export async function pollOnce({ pool, poster }: PollOnceOptions): Promise<PollO
 
         result.inserted += 1;
 
+        // The tape is the immutable live feed. Boards are a secondary, in-place view.
         const postResult = await poster.postTapeLine(formatTapeMarkdown(event));
         if (postResult.posted && postResult.messageId) {
           await repository.markEventPosted(event.id, postResult.messageId);
           result.posted += 1;
+        }
+
+        if (event.boardDriver && env.discordDriverBoardChannelId) {
+          await syncDriverBoard(repository, poster, event.boardDriver);
         }
       }
 
@@ -69,5 +76,17 @@ export async function pollOnce({ pool, poster }: PollOnceOptions): Promise<PollO
     }
   }
 
+  return result;
+}
+
+async function syncDriverBoard(repository: NewsRepository, poster: DiscordPoster, thread: BoardThread) {
+  const [board, events] = await Promise.all([
+    repository.getDriverBoard(thread),
+    repository.getDriverBoardEvents(thread),
+  ]);
+  const result = await poster.syncDriverBoard(thread, formatDriverBoard(thread, events), board.threadId, board.messageId);
+  if (result.posted && result.threadId && result.messageId) {
+    await repository.saveDriverBoard(thread, result.threadId, result.messageId);
+  }
   return result;
 }

@@ -10,8 +10,8 @@ export interface DigestSummary {
   markdown: string;
 }
 
-export function createDigest(events: NewsEvent[], limit = 5): DigestSummary {
-  const sortedEvents = [...events].sort((left, right) => right.publishedAt.getTime() - left.publishedAt.getTime());
+export function createDigest(events: NewsEvent[], limit = 5, type: "daily" | "weekly" = "daily"): DigestSummary {
+  const sortedEvents = [...events].sort((left, right) => eventImportance(right) - eventImportance(left) || right.publishedAt.getTime() - left.publishedAt.getTime());
   const topEvents = sortedEvents.slice(0, limit);
 
   const summary = {
@@ -24,19 +24,18 @@ export function createDigest(events: NewsEvent[], limit = 5): DigestSummary {
 
   return {
     ...summary,
-    markdown: formatDigestMarkdown(summary),
+    markdown: formatDigestMarkdown(summary, type),
   };
 }
 
-function formatDigestMarkdown(summary: Omit<DigestSummary, "markdown">): string {
+function formatDigestMarkdown(summary: Omit<DigestSummary, "markdown">, type: "daily" | "weekly"): string {
   const lines = [
-    "**zNews Market Digest**",
-    `Events: **${summary.eventCount}**`,
-    `Categories: ${formatCounts(summary.categories)}`,
-    `Tickers: ${formatCounts(summary.tickers)}`,
-    `Macro: ${formatCounts(summary.macroLabels)}`,
+    `**zNews ${type === "daily" ? "Daily" : "Weekly"} Market Recap**`,
+    `Coverage: **${summary.eventCount}** material events`,
+    `**Markets requiring attention:** ${formatCounts(summary.tickers)}`,
+    `**Main risks:** ${formatCounts(summary.macroLabels)}`,
     "",
-    "**Top Events**",
+    "**What matters before the session**",
   ];
 
   for (const event of summary.topEvents) {
@@ -44,6 +43,11 @@ function formatDigestMarkdown(summary: Omit<DigestSummary, "markdown">): string 
   }
 
   return lines.join("\n");
+}
+
+function eventImportance(event: NewsEvent): number {
+  const riskLabels = new Set(["war escalation", "energy shock", "supply shock", "financial risk", "fiscal risk", "banking risk", "currency intervention"]);
+  return event.impact.direct.length * 4 + event.impact.secondary.length + event.macroLabels.filter((label) => riskLabels.has(label)).length * 3;
 }
 
 function countCategories(values: Category[]): Array<{ category: Category; count: number }> {

@@ -4,10 +4,12 @@ import type { NewsEvent, RawNewsItem } from "../domain/types.js";
 export function createEventFromRawItem(item: RawNewsItem): NewsEvent {
   const classification = classifyNewsItem(item);
 
-  return {
+  const event: NewsEvent = {
     id: item.id,
     publishedAt: item.publishedAt,
     category: classification.category,
+    drivers: classification.drivers,
+    transmissionChannels: classification.transmissionChannels,
     headline: item.title,
     status: classification.status,
     impact: classification.impact,
@@ -16,4 +18,7 @@ export function createEventFromRawItem(item: RawNewsItem): NewsEvent {
     url: item.url,
     summary: item.summary,
   };
+
+  return { ...event, boardDriver: positionEvent(event) };
 }
+import { positionEvent } from "../domain/driverBoard.js";

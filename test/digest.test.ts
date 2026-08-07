@@ -9,6 +9,8 @@ describe("createDigest", () => {
         id: "1",
         publishedAt: new Date("2026-05-21T16:30:00Z"),
         category: "Russia/Ukraine",
+        drivers: ["Russia/Ukraine", "Geopolitics"],
+        transmissionChannels: ["Energy", "Grains", "Equities", "Rates"],
         headline: "Zelensky says FSB site hit in Kherson",
         status: "single-source",
         impact: {
@@ -37,7 +39,7 @@ describe("createDigest", () => {
         { ticker: "FGBL", count: 1 },
       ]),
     );
-    expect(digest.markdown).toContain("**zNews Market Digest**");
+    expect(digest.markdown).toContain("**zNews Daily Market Recap**");
     expect(digest.markdown).toContain("Zelensky says FSB site hit in Kherson");
   });
 });

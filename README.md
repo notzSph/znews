@@ -247,6 +247,15 @@ Free RSS/Atom/RDF sources currently wired:
 - The Guardian World
 - Deutsche Welle
 - Politico Europe
+- Foreign Affairs
+- Foreign Policy
+- Atlantic Council
+- European Council on Foreign Relations
+- International Crisis Group
+- War on the Rocks
+- The Diplomat
+- Just Security
+- European Parliament News
 - UN News
 - Africanews
 - AllAfrica
@@ -254,7 +263,6 @@ Free RSS/Atom/RDF sources currently wired:
 - Buenos Aires Times
 - Brazil Reports
 - The Rio Times
-- MercoPress
 - Latin America Reports
 - GDACS Alerts
 - USGS Significant Earthquakes
@@ -297,6 +305,8 @@ Known skipped candidates for now:
 - Bank of Canada, Reserve Bank of India, and Investing.com feeds were reachable but skipped because their parsed item dates were future-dated during validation.
 - KrebsOnSecurity was skipped because it intermittently returned 403 from this runtime. Nikkei Asia was skipped because the feed parsed to zero usable items.
 - bne IntelliNews, Iran International, Mining Weekly, MINING.com, Africa Energy, BNamericas, teleSUR English, AgWeb, and selected Reuters feeds were skipped because candidate URLs returned blocking pages, HTML, 4xx/5xx responses, payload-size errors, or fetch failures from this runtime.
+- CFR, Brookings, Carnegie, Chatham House, IISS, RUSI, ISW, RAND, Wilson Center, Lawfare, US State Department, NATO, UN Security Council, and EEAS candidates were skipped because candidate URLs returned missing feeds, blocking pages, HTML, 4xx/5xx responses, or technical-difficulty pages from this runtime.
+- CSIS was skipped after validation because its feed parsed stale 2016 content. MercoPress was skipped after validation because it returned zero usable items in the final source-health pass.
 
 Cyrillic feeds configured with `translate` are translated to English before classification and posting. If translation fails, zNews keeps the original headline instead of dropping the item.
 
@@ -311,6 +321,7 @@ zNews keeps:
 - direct macro headlines
 - rates and central-bank headlines
 - inflation-sensitive headlines
+- policy and international-relations headlines with sanctions, tariffs, export controls, alliance, summit, treaty, ceasefire, or strategic-security channels
 - energy and commodity shock headlines
 - Africa and Latin America resource extraction, mining, export, nationalization, and security-risk headlines
 - agri/food commodity shock headlines with direct grain and soft-commodity impact

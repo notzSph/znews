@@ -147,7 +147,7 @@ describe("isMarketRelevant", () => {
       publishedAt: new Date("2026-05-22T07:30:00Z"),
     });
 
-    expect(event.category).toBe("Middle East");
+    expect(event.category).toBe("Market Structure");
     expect(isMarketRelevant(event, { now: new Date("2026-05-22T07:35:00Z"), maxAgeHours: 48 })).toBe(false);
   });
 
@@ -160,7 +160,7 @@ describe("isMarketRelevant", () => {
       publishedAt: new Date("2026-06-29T12:00:00Z"),
     });
 
-    expect(event.category).toBe("Weather/Supply Shock");
+    expect(event.category).toBe("Weather/Agri Supply");
     expect(isMarketRelevant(event, { now: new Date("2026-06-29T13:00:00Z"), maxAgeHours: 48 })).toBe(true);
   });
 
@@ -174,6 +174,19 @@ describe("isMarketRelevant", () => {
     });
 
     expect(event.category).toBe("Cyber/Security");
+    expect(isMarketRelevant(event, { now: new Date("2026-06-29T13:00:00Z"), maxAgeHours: 48 })).toBe(true);
+  });
+
+  it("keeps policy and international-relations headlines with market channels", () => {
+    const event = createEventFromRawItem({
+      ...baseItem,
+      id: "policy-ir",
+      title: "Diplomatic summit discusses tariffs and export controls in the Indo-Pacific",
+      url: "https://example.com/policy-ir",
+      publishedAt: new Date("2026-06-29T12:00:00Z"),
+    });
+
+    expect(event.category).toBe("Policy/IR");
     expect(isMarketRelevant(event, { now: new Date("2026-06-29T13:00:00Z"), maxAgeHours: 48 })).toBe(true);
   });
 });

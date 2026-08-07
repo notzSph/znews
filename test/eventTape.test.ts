@@ -7,7 +7,9 @@ describe("formatTapeLine", () => {
     const event: NewsEvent = {
       id: "event-1",
       publishedAt: new Date("2026-05-21T17:30:00Z"),
-      category: "Middle East",
+      category: "Hormuz War",
+      drivers: ["Hormuz/Red Sea", "Geopolitics"],
+      transmissionChannels: ["Energy", "LNG", "Shipping"],
       headline: "Hormuz closure reports resurface",
       status: "developing",
       impact: {
@@ -24,7 +26,7 @@ describe("formatTapeLine", () => {
     };
 
     expect(formatTapeLine(event)).toBe(
-      "21/05/2026 13:30 ET - Middle East - Hormuz closure reports resurface - direct: CL, BRN, RB - secondary: GC, ES, NQ - developing - supply shock, risk-off - https://example.com/hormuz",
+      "21/05/2026 13:30 ET - Hormuz War - Hormuz closure reports resurface - direct: CL, BRN, RB - secondary: GC, ES, NQ - developing - supply shock, risk-off - https://example.com/hormuz",
     );
   });
 
@@ -32,7 +34,9 @@ describe("formatTapeLine", () => {
     const event: NewsEvent = {
       id: "event-1",
       publishedAt: new Date("2026-05-21T17:30:00Z"),
-      category: "Middle East",
+      category: "Hormuz War",
+      drivers: ["Hormuz/Red Sea", "Geopolitics"],
+      transmissionChannels: ["Energy", "LNG", "Shipping"],
       headline: "Hormuz closure reports resurface",
       status: "developing",
       impact: {
@@ -52,7 +56,7 @@ describe("formatTapeLine", () => {
       [
         "**Hormuz closure reports resurface**",
         "⏰ • `21/05/2026 13:30 ET`",
-        "📚 • **Middle East**",
+        "📚 • **Hormuz War**",
         "🚨 • **Direct:** <:crudeoil:1294743881434533898> **CL** <:crudeoil:1294743881434533898> **BRN** <:crudeoil:1294743881434533898> **RB**",
         "🔔 • **Secondary:** <:gold:1294720270199951444> **GC** <:es:1294720279192535090> **ES** <:nq:1294720287262244904> **NQ**",
         "🟡 • `developing`",
@@ -67,6 +71,8 @@ describe("formatTapeLine", () => {
       id: "event-2",
       publishedAt: new Date("2026-05-21T17:30:00Z"),
       category: "Market Structure",
+      drivers: [],
+      transmissionChannels: [],
       headline: "Unclassified headline",
       status: "single-source",
       impact: {

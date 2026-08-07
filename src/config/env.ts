@@ -2,6 +2,8 @@ export interface AppEnv {
   databaseUrl: string;
   discordToken?: string;
   discordTapeChannelId?: string;
+  discordDriverBoardChannelId?: string;
+  discordDigestChannelId?: string;
   discordRoadmapThreadId?: string;
   timezone: string;
   pollIntervalMs: number;
@@ -19,6 +21,8 @@ export function readEnv(env: NodeJS.ProcessEnv = process.env, options: ReadEnvOp
     databaseUrl: requireDatabaseUrl ? readRequired(env, "DATABASE_URL") : (readOptional(env, "DATABASE_URL") ?? ""),
     discordToken: readOptional(env, "DISCORD_TOKEN"),
     discordTapeChannelId: readOptional(env, "DISCORD_TAPE_CHANNEL_ID"),
+    discordDriverBoardChannelId: readOptional(env, "DISCORD_DRIVER_BOARD_CHANNEL_ID"),
+    discordDigestChannelId: readOptional(env, "DISCORD_DIGEST_CHANNEL_ID"),
     discordRoadmapThreadId: readOptional(env, "DISCORD_ROADMAP_THREAD_ID"),
     timezone: readOptional(env, "ZN_TIMEZONE") ?? "UTC",
     pollIntervalMs: readOptionalInteger(env, "ZN_POLL_INTERVAL_MS") ?? 60_000,

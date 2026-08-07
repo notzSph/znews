@@ -165,6 +165,51 @@ export const rssSources: NewsSource[] = [
     url: "https://www.politico.eu/feed/",
   },
   {
+    id: "foreign-affairs",
+    name: "Foreign Affairs",
+    url: "https://www.foreignaffairs.com/rss.xml",
+  },
+  {
+    id: "foreign-policy",
+    name: "Foreign Policy",
+    url: "https://foreignpolicy.com/feed/",
+  },
+  {
+    id: "atlantic-council",
+    name: "Atlantic Council",
+    url: "https://www.atlanticcouncil.org/feed/",
+  },
+  {
+    id: "ecfr",
+    name: "European Council on Foreign Relations",
+    url: "https://ecfr.eu/feed/",
+  },
+  {
+    id: "crisis-group",
+    name: "International Crisis Group",
+    url: "https://www.crisisgroup.org/rss.xml",
+  },
+  {
+    id: "war-on-the-rocks",
+    name: "War on the Rocks",
+    url: "https://warontherocks.com/feed/",
+  },
+  {
+    id: "the-diplomat",
+    name: "The Diplomat",
+    url: "https://thediplomat.com/feed/",
+  },
+  {
+    id: "just-security",
+    name: "Just Security",
+    url: "https://www.justsecurity.org/feed/",
+  },
+  {
+    id: "european-parliament",
+    name: "European Parliament News",
+    url: "https://www.europarl.europa.eu/rss/doc/press-releases/en.xml",
+  },
+  {
     id: "un-news",
     name: "UN News",
     url: "https://news.un.org/feed/subscribe/en/news/all/rss.xml",
@@ -198,11 +243,6 @@ export const rssSources: NewsSource[] = [
     id: "rio-times",
     name: "The Rio Times",
     url: "https://www.riotimesonline.com/feed/",
-  },
-  {
-    id: "mercopress",
-    name: "MercoPress",
-    url: "https://en.mercopress.com/rss",
   },
   {
     id: "latin-america-reports",

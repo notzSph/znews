@@ -1,9 +1,12 @@
 import "dotenv/config";
 import { readEnv } from "./config/env.js";
 import { createDbPool } from "./db/client.js";
+import { NewsRepository } from "./db/repository.js";
 import { DiscordPresenceClient } from "./discord/presence.js";
 import { DiscordPoster } from "./discord/poster.js";
 import { createDigest } from "./digest/dailyDigest.js";
+import { getDigestWindow } from "./digest/windows.js";
+import { boardThreads, formatDriverBoard } from "./domain/driverBoard.js";
 import { dryRun } from "./worker/dryRun.js";
 import { formatDryRunLiveSim, formatDryRunSummary } from "./worker/dryRunReport.js";
 import { pollLoop } from "./worker/pollLoop.js";
@@ -44,12 +47,48 @@ if (command === "dry-run" || command === "digest:dry-run" || command === "dry-ru
   }
 } else if (command === "sources:check") {
   console.log(formatSourceHealth(await checkSources()));
+} else if (command === "digest:daily" || command === "digest:weekly") {
+  const env = readEnv();
+  const pool = createDbPool(env.databaseUrl);
+  const digestType = command === "digest:daily" ? "daily" : "weekly";
+  const window = getDigestWindow(digestType, new Date(), env.timezone);
+  const digestId = `${digestType}:${window.start.toISOString()}`;
+  const repository = new NewsRepository(pool);
+  const poster = new DiscordPoster({ token: env.discordToken, digestChannelId: env.discordDigestChannelId });
+  try {
+    if (await repository.hasDigestRun(digestId)) throw new Error(`${digestType} digest already posted for this window`);
+    const events = await repository.getEventsInWindow(window.start, window.end);
+    const postResult = await poster.postDigest(createDigest(events, 5, digestType).markdown);
+    if (!postResult.posted) throw new Error(`Digest not posted: ${postResult.reason}`);
+    await repository.saveDigestRun(digestId, digestType, window.start, window.end, postResult.messageId);
+    console.log(`${digestType} digest posted: ${postResult.messageId}`);
+  } finally {
+    await pool.end();
+  }
+} else if (command === "boards:setup") {
+  const env = readEnv();
+  const pool = createDbPool(env.databaseUrl);
+  const repository = new NewsRepository(pool);
+  const poster = new DiscordPoster({ token: env.discordToken, driverBoardChannelId: env.discordDriverBoardChannelId });
+  try {
+    for (const thread of boardThreads) {
+      const [board, events] = await Promise.all([repository.getDriverBoard(thread), repository.getDriverBoardEvents(thread)]);
+      const result = await poster.syncDriverBoard(thread, formatDriverBoard(thread, events), board.threadId, board.messageId);
+      if (!result.posted || !result.threadId || !result.messageId) throw new Error(`Board setup failed for ${thread}: ${result.reason ?? "unknown error"}`);
+      await repository.saveDriverBoard(thread, result.threadId, result.messageId);
+    }
+    console.log(`Driver-board threads ready: ${boardThreads.length}`);
+  } finally {
+    await pool.end();
+  }
 } else if (command === "poll-once" || command === "poll") {
   const env = readEnv();
   const pool = createDbPool(env.databaseUrl);
   const poster = new DiscordPoster({
     token: env.discordToken,
     tapeChannelId: env.discordTapeChannelId,
+    driverBoardChannelId: env.discordDriverBoardChannelId,
+    digestChannelId: env.discordDigestChannelId,
   });
   const presence = new DiscordPresenceClient({ token: env.discordToken });
 
@@ -71,6 +110,9 @@ if (command === "dry-run" || command === "digest:dry-run" || command === "dry-ru
   console.log("  npm run dry-run -- 10");
   console.log("  npm run dry-run:live -- 10");
   console.log("  npm run digest:dry-run -- 10");
+  console.log("  npm run digest:daily");
+  console.log("  npm run digest:weekly");
+  console.log("  npm run boards:setup");
   console.log("  npm run sources:check");
   console.log("  npm run poll:once");
   console.log("  npm run poll");

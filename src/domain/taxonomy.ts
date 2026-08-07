@@ -1,18 +1,20 @@
-import type { Category, MacroLabel, Ticker } from "./types.js";
+import type { Category, MacroLabel, NewsDriver, Ticker, TransmissionChannel } from "./types.js";
 
 export const categories: Category[] = [
-  "Middle East",
+  "Hormuz War",
   "Russia/Ukraine",
   "Italy",
   "EU",
   "US",
   "China/Asia",
+  "Forex/Sovereign",
   "Macro/Central Banks",
   "Energy",
   "Resources/EM",
+  "Policy/IR",
   "Market Structure",
   "Cyber/Security",
-  "Weather/Supply Shock",
+  "Weather/Agri Supply",
 ];
 
 export const tickers: Record<Ticker, string> = {
@@ -24,6 +26,10 @@ export const tickers: Record<Ticker, string> = {
   EU: "EUR/USD",
   GU: "GBP/USD",
   UJ: "USD/JPY",
+  CAD: "USD/CAD",
+  CHF: "USD/CHF",
+  AU: "AUD/USD",
+  NZD: "NZD/USD",
   DXY: "Dollar Index",
   GC: "Gold",
   SI: "Silver",
@@ -35,9 +41,18 @@ export const tickers: Record<Ticker, string> = {
   ZW: "Wheat",
   ZC: "Corn",
   ZS: "Soybeans",
+  ZM: "Soybean Meal",
+  ZL: "Soybean Oil",
+  ZO: "Oats",
+  ZR: "Rough Rice",
   CC: "Cocoa",
   KC: "Coffee",
   SB: "Sugar",
+  CT: "Cotton",
+  OJ: "Orange Juice",
+  LE: "Live Cattle",
+  GF: "Feeder Cattle",
+  HE: "Lean Hogs",
   FGBL: "Bund",
   ZN: "US 10Y Note",
 };
@@ -67,3 +82,44 @@ export const macroLabels: MacroLabel[] = [
   "weather / infrastructure",
   "cyber / security",
 ];
+
+export const categoryDrivers: Record<Category, NewsDriver[]> = {
+  "Hormuz War": ["Hormuz/Red Sea", "Geopolitics"],
+  "Russia/Ukraine": ["Russia/Ukraine", "Geopolitics"],
+  Italy: ["European Sovereign Risk", "Monetary/Fiscal"],
+  EU: ["European Sovereign Risk", "Monetary/Fiscal"],
+  US: ["US Policy/Politics", "Geopolitics"],
+  "China/Asia": ["China/Asia", "Geopolitics"],
+  "Forex/Sovereign": ["Monetary/Fiscal"],
+  "Macro/Central Banks": ["Global Macro/Central Banks", "Monetary/Fiscal"],
+  Energy: ["Energy/LNG"],
+  "Resources/EM": ["Resources/EM"],
+  "Policy/IR": ["Geopolitics", "Trade Policy/Sanctions"],
+  "Market Structure": [],
+  "Cyber/Security": ["Cyber/Security"],
+  "Weather/Agri Supply": ["Weather/Climate", "Agriculture/Supply"],
+};
+
+// Taxonomy is deliberately three-layered: category describes the news context;
+// driver describes the persistent risk board; channels describe the tradable path.
+export const driverTransmissionChannels: Record<NewsDriver, TransmissionChannel[]> = {
+  "Hormuz/Red Sea": ["Energy", "LNG", "Shipping"],
+  "Russia/Ukraine": ["Energy", "Grains", "Oilseeds", "Equities", "Rates"],
+  "European Sovereign Risk": ["FX", "Rates", "Equities"],
+  "Monetary/Fiscal": ["FX", "Rates", "Equities"],
+  "Global Macro/Central Banks": ["FX", "Rates", "Equities"],
+  "US Policy/Politics": ["FX", "Rates", "Equities"],
+  "China/Asia": ["FX", "Equities", "Metals"],
+  "Energy/LNG": ["Energy", "LNG"],
+  "Agriculture/Supply": ["Grains", "Oilseeds", "Soft Commodities", "Livestock"],
+  "Weather/Climate": ["Energy", "LNG", "Grains", "Oilseeds", "Soft Commodities", "Livestock"],
+  "Shipping/Choke Point": ["Energy", "LNG", "Shipping", "Grains"],
+  "Trade Policy/Sanctions": ["FX", "Rates", "Equities", "Metals"],
+  Geopolitics: ["FX", "Rates", "Equities"],
+  "Resources/EM": ["Energy", "Metals"],
+  "Cyber/Security": ["Cyber", "Equities"],
+};
+
+export function transmissionChannelsForDrivers(drivers: NewsDriver[]): TransmissionChannel[] {
+  return [...new Set(drivers.flatMap((driver) => driverTransmissionChannels[driver]))];
+}

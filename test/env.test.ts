@@ -28,6 +28,12 @@ describe("readEnv", () => {
     });
   });
 
+  it("reads an optional driver-board channel", () => {
+    expect(readEnv({ DATABASE_URL: "postgres://example", DISCORD_DRIVER_BOARD_CHANNEL_ID: "1507678196496203858" })).toMatchObject({
+      discordDriverBoardChannelId: "1507678196496203858",
+    });
+  });
+
   it("rejects invalid poll intervals", () => {
     expect(() =>
       readEnv({

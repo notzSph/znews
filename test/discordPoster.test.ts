@@ -10,4 +10,13 @@ describe("DiscordPoster", () => {
       reason: "missing-config",
     });
   });
+
+  it("does not sync driver boards without Discord config", async () => {
+    const poster = new DiscordPoster({});
+
+    await expect(poster.syncDriverBoard("Test", "test")).resolves.toEqual({
+      posted: false,
+      reason: "missing-config",
+    });
+  });
 });

@@ -11,7 +11,19 @@ const baseItem: Omit<RawNewsItem, "id" | "title" | "publishedAt" | "url"> = {
 };
 
 describe("classifyNewsItem", () => {
-  it("tags Middle East energy escalation with direct energy impact", () => {
+  it("covers livestock and soy-complex supply shocks", () => {
+    const result = classifyNewsItem({
+      id: "agri-livestock",
+      title: "Drought cuts feed supply as feeder cattle and soybean meal prices surge",
+      url: "https://example.com/agri-livestock",
+      publishedAt: new Date(),
+      source: { id: "test", name: "Test", url: "https://example.com" },
+    });
+
+    expect(result.impact.direct).toEqual(expect.arrayContaining(["GF", "LE", "HE", "ZM", "ZL"]));
+    expect(result.transmissionChannels).toEqual(expect.arrayContaining(["Oilseeds", "Livestock"]));
+  });
+  it("tags Hormuz escalation with direct energy impact", () => {
     const result = classifyNewsItem({
       ...baseItem,
       id: "1",
@@ -20,7 +32,9 @@ describe("classifyNewsItem", () => {
       publishedAt: new Date("2026-05-21T17:30:00Z"),
     });
 
-    expect(result.category).toBe("Middle East");
+    expect(result.category).toBe("Hormuz War");
+    expect(result.drivers).toEqual(expect.arrayContaining(["Hormuz/Red Sea", "Geopolitics"]));
+    expect(result.transmissionChannels).toEqual(expect.arrayContaining(["Energy", "LNG", "Shipping"]));
     expect(result.impact.direct).toEqual(expect.arrayContaining(["CL", "BRN", "RB", "NG"]));
     expect(result.impact.secondary).toEqual(expect.arrayContaining(["GC", "DXY", "ES", "NQ"]));
     expect(result.macroLabels).toEqual(expect.arrayContaining(["geopolitical risk", "energy shock", "risk-off"]));
@@ -77,6 +91,21 @@ describe("classifyNewsItem", () => {
 
     expect(result.category).toBe("China/Asia");
     expect(result.macroLabels).toEqual(expect.arrayContaining(["trade war", "risk-off"]));
+  });
+
+  it("tags policy and international-relations analysis as broad market risk", () => {
+    const result = classifyNewsItem({
+      ...baseItem,
+      id: "policy-ir",
+      title: "Foreign policy summit weighs sanctions and export controls for strategic supply chains",
+      url: "https://example.com/policy-ir",
+      publishedAt: new Date("2026-06-29T12:00:00Z"),
+    });
+
+    expect(result.category).toBe("Policy/IR");
+    expect(result.impact.direct).toEqual(expect.arrayContaining(["ES", "NQ", "DXY", "GC", "ZN"]));
+    expect(result.impact.secondary).toEqual(expect.arrayContaining(["CL", "BRN", "EU"]));
+    expect(result.macroLabels).toEqual(expect.arrayContaining(["geopolitical risk", "risk-off", "sanctions", "trade war"]));
   });
 
   it("tags Fed and CPI headlines as macro/rates impact", () => {
@@ -139,7 +168,7 @@ describe("classifyNewsItem", () => {
     expect(result.status).toBe("official");
   });
 
-  it("does not mark ordinary says headlines from media feeds as official", () => {
+  it("does not tag ordinary Iran diplomatic headlines as Hormuz risk", () => {
     const result = classifyNewsItem({
       ...baseItem,
       id: "media-says",
@@ -148,7 +177,7 @@ describe("classifyNewsItem", () => {
       publishedAt: new Date("2026-05-22T19:11:00Z"),
     });
 
-    expect(result.category).toBe("Middle East");
+    expect(result.category).toBe("US");
     expect(result.status).toBe("single-source");
   });
 
@@ -255,8 +284,9 @@ describe("classifyNewsItem", () => {
       publishedAt: new Date("2026-06-29T12:00:00Z"),
     });
 
-    expect(result.category).toBe("Weather/Supply Shock");
-    expect(result.impact.direct).toEqual(expect.arrayContaining(["ZW", "ZC", "ZS", "CC", "KC", "SB", "CL", "BRN", "NG", "RB"]));
+    expect(result.category).toBe("Weather/Agri Supply");
+    expect(result.impact.direct).toEqual(expect.arrayContaining(["ZW", "ZC", "ZS", "CC", "KC", "SB"]));
+    expect(result.impact.direct).not.toEqual(expect.arrayContaining(["CL", "BRN", "NG", "RB"]));
     expect(result.macroLabels).toEqual(expect.arrayContaining(["weather / infrastructure", "supply shock", "inflation", "risk-off"]));
   });
 
@@ -269,9 +299,23 @@ describe("classifyNewsItem", () => {
       publishedAt: new Date("2026-06-29T12:00:00Z"),
     });
 
-    expect(result.category).toBe("Weather/Supply Shock");
+    expect(result.category).toBe("Weather/Agri Supply");
     expect(result.impact.direct).toEqual(expect.arrayContaining(["ZW", "CC", "KC"]));
     expect(result.impact.secondary).toEqual(expect.arrayContaining(["DXY", "GC", "ES", "NQ"]));
+  });
+
+  it("tags weather-driven natural-gas shocks without assigning oil", () => {
+    const result = classifyNewsItem({
+      ...baseItem,
+      id: "weather-natural-gas",
+      title: "Arctic freeze lifts natural gas heating demand and disrupts LNG exports",
+      url: "https://example.com/weather-natural-gas",
+      publishedAt: new Date("2026-06-29T12:00:00Z"),
+    });
+
+    expect(result.category).toBe("Weather/Agri Supply");
+    expect(result.impact.direct).toEqual(expect.arrayContaining(["NG"]));
+    expect(result.impact.direct).not.toEqual(expect.arrayContaining(["CL", "BRN", "RB"]));
   });
 
   it("tags Africa and LatAm resource extraction risk with direct metals and energy impact", () => {
@@ -297,7 +341,7 @@ describe("classifyNewsItem", () => {
       publishedAt: new Date("2026-06-29T12:00:00Z"),
     });
 
-    expect(result.category).toBe("Weather/Supply Shock");
+    expect(result.category).toBe("Hormuz War");
     expect(result.impact.direct).toEqual(expect.arrayContaining(["CL", "BRN", "RB", "NG"]));
     expect(result.impact.secondary).toEqual(expect.arrayContaining(["ES", "NQ", "DXY", "GC"]));
   });
@@ -328,5 +372,20 @@ describe("classifyNewsItem", () => {
     expect(result.category).toBe("Macro/Central Banks");
     expect(result.impact.direct).toEqual(expect.arrayContaining(["UJ", "ZN", "DXY", "GC"]));
     expect(result.impact.secondary).toEqual(expect.arrayContaining(["NQ", "ES", "FESX", "FDAX"]));
+  });
+
+  it("tags sovereign and monetary crisis news as forex risk", () => {
+    const result = classifyNewsItem({
+      ...baseItem,
+      id: "forex-sovereign",
+      title: "Japan weighs currency intervention after fiscal crisis drives yen devaluation fears",
+      url: "https://example.com/forex-sovereign",
+      publishedAt: new Date("2026-06-29T12:00:00Z"),
+    });
+
+    expect(result.category).toBe("Forex/Sovereign");
+    expect(result.drivers).toEqual(expect.arrayContaining(["Monetary/Fiscal"]));
+    expect(result.transmissionChannels).toEqual(expect.arrayContaining(["FX", "Rates"]));
+    expect(result.impact.direct).toEqual(expect.arrayContaining(["EU", "GU", "UJ", "CAD", "CHF", "AU", "NZD", "DXY"]));
   });
 });
