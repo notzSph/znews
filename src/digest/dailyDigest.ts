@@ -1,6 +1,9 @@
 import type { Category, MacroLabel, NewsEvent, Ticker } from "../domain/types.js";
 import { formatTapeMarkdown, formatTicker } from "../format/eventTape.js";
 
+// Discord bots are limited to 2,000 characters per message.
+const DISCORD_MAX_CONTENT_LENGTH = 2_000;
+
 export interface DigestSummary {
   eventCount: number;
   categories: Array<{ category: Category; count: number }>;
@@ -10,7 +13,12 @@ export interface DigestSummary {
   markdown: string;
 }
 
-export function createDigest(events: NewsEvent[], limit = 5, type: "daily" | "weekly" | "overnight" | "session" = "daily"): DigestSummary {
+export function createDigest(
+  events: NewsEvent[],
+  limit = 5,
+  type: "daily" | "weekly" | "overnight" | "session" = "daily",
+  scope?: string,
+): DigestSummary {
   const sortedEvents = [...events].sort((left, right) => eventImportance(right) - eventImportance(left) || right.publishedAt.getTime() - left.publishedAt.getTime());
   const topEvents = sortedEvents.slice(0, limit);
 
@@ -24,13 +32,17 @@ export function createDigest(events: NewsEvent[], limit = 5, type: "daily" | "we
 
   return {
     ...summary,
-    markdown: formatDigestMarkdown(summary, type),
+    markdown: formatDigestMarkdown(summary, type, scope),
   };
 }
 
-function formatDigestMarkdown(summary: Omit<DigestSummary, "markdown">, type: "daily" | "weekly" | "overnight" | "session"): string {
+function formatDigestMarkdown(
+  summary: Omit<DigestSummary, "markdown">,
+  type: "daily" | "weekly" | "overnight" | "session",
+  scope?: string,
+): string {
   const lines = [
-    `**zNews ${digestLabel(type)} Market Recap**`,
+    `**zNews ${digestLabel(type)} Market Recap${scope ? ` • ${scope}` : ""}**`,
     `Coverage: **${summary.eventCount}** material events`,
     `**Markets requiring attention:** ${formatTickerCounts(summary.tickers)}`,
     `**Main risks:** ${formatCounts(summary.macroLabels)}`,
@@ -38,11 +50,13 @@ function formatDigestMarkdown(summary: Omit<DigestSummary, "markdown">, type: "d
     "**What matters before the session**",
   ];
 
+  let markdown = lines.join("\n");
   for (const event of summary.topEvents) {
-    lines.push("", formatTapeMarkdown(event));
+    const card = `\n\n${formatTapeMarkdown(event)}`;
+    if (markdown.length + card.length > DISCORD_MAX_CONTENT_LENGTH) break;
+    markdown += card;
   }
-
-  return lines.join("\n");
+  return markdown;
 }
 
 function digestLabel(type: "daily" | "weekly" | "overnight" | "session"): string {

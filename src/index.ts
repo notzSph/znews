@@ -48,20 +48,32 @@ if (command === "dry-run" || command === "digest:dry-run" || command === "dry-ru
 } else if (command === "sources:check") {
   console.log(formatSourceHealth(await checkSources()));
 } else if (command === "digest:overnight" || command === "digest:session" || command === "digest:daily" || command === "digest:weekly") {
+  const forceDigest = process.argv.slice(3).includes("--force");
   const env = readEnv();
   const pool = createDbPool(env.databaseUrl);
   const digestType = command.replace("digest:", "") as "overnight" | "session" | "daily" | "weekly";
   const window = getDigestWindow(digestType, new Date(), env.timezone);
   const digestId = `${digestType}:${window.start.toISOString()}`;
   const repository = new NewsRepository(pool);
-  const poster = new DiscordPoster({ token: env.discordToken, digestChannelId: env.discordDigestChannelId });
+  const poster = new DiscordPoster({ token: env.discordToken });
   try {
-    if (await repository.hasDigestRun(digestId)) throw new Error(`${digestType} digest already posted for this window`);
-    const events = await repository.getEventsInWindow(window.start, window.end);
-    const postResult = await poster.postDigest(createDigest(events, 5, digestType).markdown);
-    if (!postResult.posted) throw new Error(`Digest not posted: ${postResult.reason}`);
-    await repository.saveDigestRun(digestId, digestType, window.start, window.end, postResult.messageId);
-    console.log(`${digestType} digest posted: ${postResult.messageId}`);
+    const configuredBoards = boardThreads
+      .map((thread) => ({ thread, threadId: env.discordDriverBoardThreadIds[thread] }))
+      .filter((board): board is { thread: typeof board.thread; threadId: string } => Boolean(board.threadId));
+    if (configuredBoards.length === 0) throw new Error("No driver-board thread IDs configured for digest delivery");
+
+    const posted: string[] = [];
+    for (const board of configuredBoards) {
+      const boardDigestId = `${digestId}:${board.thread}`;
+      if (!forceDigest && (await repository.hasDigestRun(boardDigestId))) continue;
+      const events = await repository.getBoardEventsInWindow(board.thread, window.start, window.end);
+      if (events.length === 0) continue;
+      const postResult = await poster.postDigest(createDigest(events, 5, digestType, board.thread).markdown, board.threadId);
+      if (!postResult.posted) throw new Error(`Digest not posted for ${board.thread}: ${postResult.reason}`);
+      await repository.saveDigestRun(boardDigestId, digestType, window.start, window.end, postResult.messageId);
+      posted.push(`${board.thread}:${postResult.messageId}`);
+    }
+    console.log(posted.length ? `${digestType} board digests posted: ${posted.join(", ")}` : `${digestType} board digests: no new events`);
   } finally {
     await pool.end();
   }
@@ -115,10 +127,10 @@ if (command === "dry-run" || command === "digest:dry-run" || command === "dry-ru
   console.log("  npm run dry-run -- 10");
   console.log("  npm run dry-run:live -- 10");
   console.log("  npm run digest:dry-run -- 10");
-  console.log("  npm run digest:daily");
-  console.log("  npm run digest:overnight");
-  console.log("  npm run digest:session");
-  console.log("  npm run digest:weekly");
+  console.log("  npm run digest:daily [--force]");
+  console.log("  npm run digest:overnight [--force]");
+  console.log("  npm run digest:session [--force]");
+  console.log("  npm run digest:weekly [--force]");
   console.log("  npm run boards:setup");
   console.log("  npm run sources:check");
   console.log("  npm run poll:once");

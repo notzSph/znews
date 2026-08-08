@@ -50,5 +50,26 @@ describe("createDigest", () => {
   it("labels session-specific digest recaps", () => {
     expect(createDigest([], 5, "overnight").markdown).toContain("**zNews Overnight Market Recap**");
     expect(createDigest([], 5, "session").markdown).toContain("**zNews Session Market Recap**");
+    expect(createDigest([], 5, "session", "Macro, Rates & FX").markdown).toContain("**zNews Session Market Recap • Macro, Rates & FX**");
+  });
+
+  it("keeps board digests within Discord's content limit without splitting event cards", () => {
+    const event: NewsEvent = {
+      id: "large",
+      publishedAt: new Date("2026-05-21T16:30:00Z"),
+      category: "Hormuz War",
+      drivers: ["Hormuz/Red Sea"],
+      transmissionChannels: ["Energy", "LNG", "Shipping"],
+      headline: "Long-form event with a wide transmission footprint",
+      status: "developing",
+      impact: { direct: ["CL", "BRN", "NG", "RB"], secondary: ["GC", "DXY", "ES", "NQ", "YM", "ZN", "EU", "FESX", "FDAX", "ZW", "ZC", "ZS", "ZM", "ZL", "CC", "KC", "CT", "LE", "HE"] },
+      macroLabels: ["energy shock", "geopolitical risk", "supply shock", "risk-off"],
+      source: { id: "test", name: "Test", url: "https://example.com" },
+      url: "https://example.com/large",
+    };
+
+    const digest = createDigest(Array.from({ length: 10 }, (_, index) => ({ ...event, id: String(index) })), 10, "overnight", "Hormuz & Red Sea");
+    expect(digest.markdown.length).toBeLessThanOrEqual(2_000);
+    expect(digest.markdown).toContain("**Long-form event with a wide transmission footprint**");
   });
 });

@@ -77,12 +77,12 @@ export class DiscordPoster {
     return response.id;
   }
 
-  async postDigest(message: string): Promise<DiscordPostResult> {
-    if (!this.config.token || !this.config.digestChannelId || !this.rest) {
+  async postDigest(message: string, destinationChannelId = this.config.digestChannelId): Promise<DiscordPostResult> {
+    if (!this.config.token || !destinationChannelId || !this.rest) {
       return { posted: false, reason: "missing-config" };
     }
 
-    const response = (await this.rest.post(Routes.channelMessages(this.config.digestChannelId), {
+    const response = (await this.rest.post(Routes.channelMessages(destinationChannelId), {
       body: { content: message, allowed_mentions: { parse: [] } },
     })) as DiscordMessageResponse;
     return { posted: true, messageId: response.id };

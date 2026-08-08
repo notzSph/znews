@@ -160,6 +160,22 @@ export class NewsRepository {
     }));
   }
 
+  async getBoardEventsInWindow(thread: BoardThread, windowStart: Date, windowEnd: Date): Promise<NewsEvent[]> {
+    const result = await this.pool.query<{
+      id: string; category: NewsEvent["category"]; headline: string; status: NewsEvent["status"]; direct_tickers: NewsEvent["impact"]["direct"]; secondary_tickers: NewsEvent["impact"]["secondary"];
+      macro_labels: NewsEvent["macroLabels"]; drivers: NewsDriver[]; transmission_channels: NewsEvent["transmissionChannels"]; source_url: string; published_at: Date;
+    }>(
+      `select id, category, headline, status, direct_tickers, secondary_tickers, macro_labels, drivers, transmission_channels, source_url, published_at
+       from news_events where board_driver = $1 and published_at >= $2 and published_at < $3 order by published_at desc`,
+      [thread, windowStart, windowEnd],
+    );
+    return result.rows.map((row) => ({
+      id: row.id, category: row.category, headline: row.headline, status: row.status, drivers: row.drivers,
+      transmissionChannels: row.transmission_channels, impact: { direct: row.direct_tickers, secondary: row.secondary_tickers }, macroLabels: row.macro_labels,
+      source: { id: "stored", name: "Stored event", url: row.source_url }, url: row.source_url, publishedAt: row.published_at,
+    }));
+  }
+
   async hasDigestRun(id: string): Promise<boolean> {
     const result = await this.pool.query("select 1 from digest_runs where id = $1", [id]);
     return Boolean(result.rowCount);
