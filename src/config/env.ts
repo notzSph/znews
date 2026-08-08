@@ -1,8 +1,24 @@
+import type { BoardThread } from "../domain/types.js";
+
+export const driverBoardThreadEnvKeys: Record<BoardThread, string> = {
+  "Hormuz & Red Sea": "DISCORD_DRIVER_BOARD_HORMUZ_RED_SEA_THREAD_ID",
+  "Russia & Ukraine": "DISCORD_DRIVER_BOARD_RUSSIA_UKRAINE_THREAD_ID",
+  "Geopolitics & Conflict": "DISCORD_DRIVER_BOARD_GEOPOLITICS_CONFLICT_THREAD_ID",
+  "Macro, Rates & FX": "DISCORD_DRIVER_BOARD_MACRO_RATES_FX_THREAD_ID",
+  "Energy, LNG & Shipping": "DISCORD_DRIVER_BOARD_ENERGY_LNG_SHIPPING_THREAD_ID",
+  "Agriculture & Weather": "DISCORD_DRIVER_BOARD_AGRICULTURE_WEATHER_THREAD_ID",
+  "China & Asia": "DISCORD_DRIVER_BOARD_CHINA_ASIA_THREAD_ID",
+  "Trade Policy & Sanctions": "DISCORD_DRIVER_BOARD_TRADE_POLICY_SANCTIONS_THREAD_ID",
+  "Resources & Emerging Markets": "DISCORD_DRIVER_BOARD_RESOURCES_EM_THREAD_ID",
+  "Cyber & Market Structure": "DISCORD_DRIVER_BOARD_CYBER_MARKET_STRUCTURE_THREAD_ID",
+};
+
 export interface AppEnv {
   databaseUrl: string;
   discordToken?: string;
   discordTapeChannelId?: string;
   discordDriverBoardChannelId?: string;
+  discordDriverBoardThreadIds: Partial<Record<BoardThread, string>>;
   discordDigestChannelId?: string;
   discordRoadmapThreadId?: string;
   timezone: string;
@@ -22,6 +38,11 @@ export function readEnv(env: NodeJS.ProcessEnv = process.env, options: ReadEnvOp
     discordToken: readOptional(env, "DISCORD_TOKEN"),
     discordTapeChannelId: readOptional(env, "DISCORD_TAPE_CHANNEL_ID"),
     discordDriverBoardChannelId: readOptional(env, "DISCORD_DRIVER_BOARD_CHANNEL_ID"),
+    discordDriverBoardThreadIds: Object.fromEntries(
+      Object.entries(driverBoardThreadEnvKeys)
+        .map(([thread, key]) => [thread, readOptional(env, key)])
+        .filter(([, id]) => id),
+    ) as Partial<Record<BoardThread, string>>,
     discordDigestChannelId: readOptional(env, "DISCORD_DIGEST_CHANNEL_ID"),
     discordRoadmapThreadId: readOptional(env, "DISCORD_ROADMAP_THREAD_ID"),
     timezone: readOptional(env, "ZN_TIMEZONE") ?? "UTC",

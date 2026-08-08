@@ -26,8 +26,10 @@ export type Ticker =
   | "ES"
   | "NQ"
   | "YM"
+  | "RTY"
   | "FDAX"
   | "FESX"
+  | "FIB"
   | "EU"
   | "GU"
   | "UJ"
@@ -59,7 +61,8 @@ export type Ticker =
   | "GF"
   | "HE"
   | "FGBL"
-  | "ZN";
+  | "ZN"
+  | "US";
 
 export type MacroLabel =
   | "risk-on"

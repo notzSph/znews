@@ -65,7 +65,7 @@ export async function pollOnce({ pool, poster }: PollOnceOptions): Promise<PollO
         }
 
         if (event.boardDriver && env.discordDriverBoardChannelId) {
-          await syncDriverBoard(repository, poster, event.boardDriver);
+          await syncDriverBoard(repository, poster, event.boardDriver, env.discordDriverBoardThreadIds[event.boardDriver]);
         }
       }
 
@@ -79,12 +79,12 @@ export async function pollOnce({ pool, poster }: PollOnceOptions): Promise<PollO
   return result;
 }
 
-async function syncDriverBoard(repository: NewsRepository, poster: DiscordPoster, thread: BoardThread) {
+async function syncDriverBoard(repository: NewsRepository, poster: DiscordPoster, thread: BoardThread, configuredThreadId?: string) {
   const [board, events] = await Promise.all([
     repository.getDriverBoard(thread),
     repository.getDriverBoardEvents(thread),
   ]);
-  const result = await poster.syncDriverBoard(thread, formatDriverBoard(thread, events), board.threadId, board.messageId);
+  const result = await poster.syncDriverBoard(thread, formatDriverBoard(thread, events), configuredThreadId ?? board.threadId, board.messageId);
   if (result.posted && result.threadId && result.messageId) {
     await repository.saveDriverBoard(thread, result.threadId, result.messageId);
   }

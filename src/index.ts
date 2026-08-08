@@ -47,10 +47,10 @@ if (command === "dry-run" || command === "digest:dry-run" || command === "dry-ru
   }
 } else if (command === "sources:check") {
   console.log(formatSourceHealth(await checkSources()));
-} else if (command === "digest:daily" || command === "digest:weekly") {
+} else if (command === "digest:overnight" || command === "digest:session" || command === "digest:daily" || command === "digest:weekly") {
   const env = readEnv();
   const pool = createDbPool(env.databaseUrl);
-  const digestType = command === "digest:daily" ? "daily" : "weekly";
+  const digestType = command.replace("digest:", "") as "overnight" | "session" | "daily" | "weekly";
   const window = getDigestWindow(digestType, new Date(), env.timezone);
   const digestId = `${digestType}:${window.start.toISOString()}`;
   const repository = new NewsRepository(pool);
@@ -73,7 +73,12 @@ if (command === "dry-run" || command === "digest:dry-run" || command === "dry-ru
   try {
     for (const thread of boardThreads) {
       const [board, events] = await Promise.all([repository.getDriverBoard(thread), repository.getDriverBoardEvents(thread)]);
-      const result = await poster.syncDriverBoard(thread, formatDriverBoard(thread, events), board.threadId, board.messageId);
+      const result = await poster.syncDriverBoard(
+        thread,
+        formatDriverBoard(thread, events),
+        env.discordDriverBoardThreadIds[thread] ?? board.threadId,
+        board.messageId,
+      );
       if (!result.posted || !result.threadId || !result.messageId) throw new Error(`Board setup failed for ${thread}: ${result.reason ?? "unknown error"}`);
       await repository.saveDriverBoard(thread, result.threadId, result.messageId);
     }
@@ -111,6 +116,8 @@ if (command === "dry-run" || command === "digest:dry-run" || command === "dry-ru
   console.log("  npm run dry-run:live -- 10");
   console.log("  npm run digest:dry-run -- 10");
   console.log("  npm run digest:daily");
+  console.log("  npm run digest:overnight");
+  console.log("  npm run digest:session");
   console.log("  npm run digest:weekly");
   console.log("  npm run boards:setup");
   console.log("  npm run sources:check");

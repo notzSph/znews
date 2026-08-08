@@ -1,5 +1,5 @@
 import type { Category, MacroLabel, NewsEvent, Ticker } from "../domain/types.js";
-import { formatTapeMarkdown } from "../format/eventTape.js";
+import { formatTapeMarkdown, formatTicker } from "../format/eventTape.js";
 
 export interface DigestSummary {
   eventCount: number;
@@ -10,7 +10,7 @@ export interface DigestSummary {
   markdown: string;
 }
 
-export function createDigest(events: NewsEvent[], limit = 5, type: "daily" | "weekly" = "daily"): DigestSummary {
+export function createDigest(events: NewsEvent[], limit = 5, type: "daily" | "weekly" | "overnight" | "session" = "daily"): DigestSummary {
   const sortedEvents = [...events].sort((left, right) => eventImportance(right) - eventImportance(left) || right.publishedAt.getTime() - left.publishedAt.getTime());
   const topEvents = sortedEvents.slice(0, limit);
 
@@ -28,11 +28,11 @@ export function createDigest(events: NewsEvent[], limit = 5, type: "daily" | "we
   };
 }
 
-function formatDigestMarkdown(summary: Omit<DigestSummary, "markdown">, type: "daily" | "weekly"): string {
+function formatDigestMarkdown(summary: Omit<DigestSummary, "markdown">, type: "daily" | "weekly" | "overnight" | "session"): string {
   const lines = [
-    `**zNews ${type === "daily" ? "Daily" : "Weekly"} Market Recap**`,
+    `**zNews ${digestLabel(type)} Market Recap**`,
     `Coverage: **${summary.eventCount}** material events`,
-    `**Markets requiring attention:** ${formatCounts(summary.tickers)}`,
+    `**Markets requiring attention:** ${formatTickerCounts(summary.tickers)}`,
     `**Main risks:** ${formatCounts(summary.macroLabels)}`,
     "",
     "**What matters before the session**",
@@ -43,6 +43,13 @@ function formatDigestMarkdown(summary: Omit<DigestSummary, "markdown">, type: "d
   }
 
   return lines.join("\n");
+}
+
+function digestLabel(type: "daily" | "weekly" | "overnight" | "session"): string {
+  if (type === "weekly") return "Weekly";
+  if (type === "overnight") return "Overnight";
+  if (type === "session") return "Session";
+  return "Daily";
 }
 
 function eventImportance(event: NewsEvent): number {
@@ -83,5 +90,13 @@ function formatCounts<T extends { count: number }>(items: T[]): string {
       const value = item[label as keyof T];
       return `**${String(value)}** (${item.count})`;
     })
+    .join(", ");
+}
+
+function formatTickerCounts(items: Array<{ ticker: Ticker; count: number }>): string {
+  if (items.length === 0) return "**none**";
+  return items
+    .slice(0, 6)
+    .map(({ ticker, count }) => `${formatTicker(ticker)} (${count})`)
     .join(", ");
 }

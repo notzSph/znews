@@ -34,6 +34,15 @@ describe("readEnv", () => {
     });
   });
 
+  it("maps configured driver-board threads", () => {
+    expect(readEnv({
+      DATABASE_URL: "postgres://example",
+      DISCORD_DRIVER_BOARD_HORMUZ_RED_SEA_THREAD_ID: "1529863712373080306",
+    }).discordDriverBoardThreadIds).toEqual({
+      "Hormuz & Red Sea": "1529863712373080306",
+    });
+  });
+
   it("rejects invalid poll intervals", () => {
     expect(() =>
       readEnv({

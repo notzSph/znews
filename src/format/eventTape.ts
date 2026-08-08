@@ -48,17 +48,40 @@ export function formatTapeMarkdown(event: NewsEvent): string {
 }
 
 const tickerEmoji: Partial<Record<Ticker, string>> = {
+  AU: "<:axy:1535238529255350345>",
   BRN: "<:crudeoil:1294743881434533898>",
+  CAD: "<:cxy:1535631926809989120>",
+  CC: "<:cc:1535238531021013032>",
   CL: "<:crudeoil:1294743881434533898>",
+  CHF: "<:sxy:1535238586184503336>",
+  CT: "<:ct:1535238533269422080>",
   DXY: "<:dxy:1294755822290731019>",
   ES: "<:es:1294720279192535090>",
+  EU: "<:exy:1294755823893086279>",
   FDAX: "<:dax:1294743837092352022>",
-  FESX: "<:exy:1294755823893086279>",
+  FESX: "<:fesx:1531340165195235328>",
   FGBL: "<:bxy:1294755820864667688>",
+  FIB: "<:fib:1531340167569477662>",
   GC: "<:gold:1294720270199951444>",
-  NQ: "<:nq:1294720287262244904>",
-  RB: "<:crudeoil:1294743881434533898>",
+  HE: "<:he:1535238535399874652>",
+  HG: "<:hg:1535238536855556196>",
+  KC: "<:kc:1535238538705244271>",
+  LE: "<:le:1535238582590115870>",
+  NG: "<:ng:1531340171214196786>",
+  NQ: "<:nq:1531340173395234856>",
+  NZD: "<:zxy:1535630504483754055>",
+  RB: "<:rb:1535238584372690944>",
+  RTY: "<:rty:1531340177190948934>",
+  SI: "<:si:1531340179108008177>",
+  UJ: "<:jxy:1531572491439571278>",
+  US: "<:us:1531341929311244419>",
   YM: "<:ym:1294743731643351212>",
+  ZC: "<:zc:1535238587497451540>",
+  ZL: "<:zl:1535238588797685801>",
+  ZM: "<:zm:1535238589930274840>",
+  ZN: "<:us:1531341929311244419>",
+  ZS: "<:zs:1535238592140542034>",
+  ZW: "<:zw:1535238594040696932>",
 };
 
 function formatList(values: string[]): string {
@@ -66,10 +89,10 @@ function formatList(values: string[]): string {
 }
 
 function formatInlineCodeList(values: string[]): string {
-  return values.length > 0 ? values.map(formatTickerOrValue).join(" ") : "**none**";
+  return values.length > 0 ? values.map(formatTicker).join(" ") : "**none**";
 }
 
-function formatTickerOrValue(value: string): string {
+export function formatTicker(value: string): string {
   const emoji = tickerEmoji[value as Ticker];
   return emoji ? `${emoji} **${value}**` : `**${value}**`;
 }

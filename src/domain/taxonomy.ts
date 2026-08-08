@@ -21,8 +21,10 @@ export const tickers: Record<Ticker, string> = {
   ES: "S&P 500",
   NQ: "Nasdaq",
   YM: "Dow",
+  RTY: "Russell 2000",
   FDAX: "DAX",
   FESX: "Euro Stoxx 50",
+  FIB: "FTSE MIB",
   EU: "EUR/USD",
   GU: "GBP/USD",
   UJ: "USD/JPY",
@@ -55,6 +57,7 @@ export const tickers: Record<Ticker, string> = {
   HE: "Lean Hogs",
   FGBL: "Bund",
   ZN: "US 10Y Note",
+  US: "US Treasury Bond",
 };
 
 export const macroLabels: MacroLabel[] = [

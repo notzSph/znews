@@ -165,7 +165,7 @@ export class NewsRepository {
     return Boolean(result.rowCount);
   }
 
-  async saveDigestRun(id: string, digestType: "daily" | "weekly", windowStart: Date, windowEnd: Date, messageId?: string): Promise<void> {
+  async saveDigestRun(id: string, digestType: "daily" | "weekly" | "overnight" | "session", windowStart: Date, windowEnd: Date, messageId?: string): Promise<void> {
     await this.pool.query(
       `insert into digest_runs (id, digest_type, window_start, window_end, discord_message_id)
        values ($1, $2, $3, $4, $5) on conflict (id) do nothing`,

@@ -40,6 +40,15 @@ describe("createDigest", () => {
       ]),
     );
     expect(digest.markdown).toContain("**zNews Daily Market Recap**");
+    expect(digest.markdown).toContain("<:crudeoil:1294743881434533898> **CL** (1)");
+    expect(digest.markdown).toContain("<:dxy:1294755822290731019> **DXY** (1)");
+    expect(digest.markdown).toContain("<:fesx:1531340165195235328> **FESX** (1)");
+    expect(digest.markdown).toContain("<:bxy:1294755820864667688> **FGBL** (1)");
     expect(digest.markdown).toContain("Zelensky says FSB site hit in Kherson");
+  });
+
+  it("labels session-specific digest recaps", () => {
+    expect(createDigest([], 5, "overnight").markdown).toContain("**zNews Overnight Market Recap**");
+    expect(createDigest([], 5, "session").markdown).toContain("**zNews Session Market Recap**");
   });
 });

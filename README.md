@@ -530,6 +530,11 @@ DISCORD_TOKEN=your_bot_token
 DISCORD_TAPE_CHANNEL_ID=target_channel_id
 ```
 
+Driver boards use the zNews forum channel plus one fixed thread ID per board. Set
+`DISCORD_DRIVER_BOARD_CHANNEL_ID` and the ten
+`DISCORD_DRIVER_BOARD_*_THREAD_ID` values from `.env.example`, then run
+`npm run boards:setup` once to seed their editable board messages.
+
 Do not paste bot secrets into Discord or commit them into Git.
 
 Keep local secrets in `.env`.
