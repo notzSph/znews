@@ -2,7 +2,7 @@
 
 ![Version](https://img.shields.io/badge/Version-2.0-blue.svg)
 ![Build](https://img.shields.io/badge/Build-passing-brightgreen.svg)
-![License](https://img.shields.io/badge/License-Proprietary-red.svg)
+![License](https://img.shields.io/badge/License-MIT-blue.svg)
 ![Runtime](https://img.shields.io/badge/Runtime-Node.js%2024-339933.svg)
 ![Language](https://img.shields.io/badge/Language-TypeScript-3178C6.svg)
 ![Database](https://img.shields.io/badge/Database-Postgres-4169E1.svg)
@@ -37,7 +37,7 @@ The system is focused on:
 
 ```text
 Build: Passing
-License: Proprietary
+License: MIT
 Runtime: Node.js 24
 Language: TypeScript
 Database: Postgres
@@ -64,10 +64,15 @@ Database: Postgres
 
 ```text
 .
+├── CONTRIBUTING.md
+├── LICENSE
 ├── README.md
-├── docker-compose.yml
+├── SECURITY.md
 ├── docs
 │   └── roadmap.md
+├── infra
+│   ├── .env.example
+│   └── docker-compose.yml
 ├── package-lock.json
 ├── package.json
 ├── src
@@ -514,7 +519,7 @@ npm run build
 Copy the example environment file and fill the values needed by the worker:
 
 ```bash
-cp .env.example .env
+cp infra/.env.example infra/.env
 ```
 
 Required once persistence is enabled:
@@ -532,12 +537,12 @@ DISCORD_TAPE_CHANNEL_ID=target_channel_id
 
 Driver boards use the zNews forum channel plus one fixed thread ID per board. Set
 `DISCORD_DRIVER_BOARD_CHANNEL_ID` and the ten
-`DISCORD_DRIVER_BOARD_*_THREAD_ID` values from `.env.example`, then run
+`DISCORD_DRIVER_BOARD_*_THREAD_ID` values from `infra/.env.example`, then run
 `npm run boards:setup` once to seed their editable board messages.
 
 Do not paste bot secrets into Discord or commit them into Git.
 
-Keep local secrets in `.env`.
+Keep local secrets in `infra/.env`.
 
 ---
 
@@ -546,7 +551,7 @@ Keep local secrets in `.env`.
 Start the optional local database:
 
 ```bash
-docker compose up -d postgres
+docker compose --env-file infra/.env -f infra/docker-compose.yml up -d postgres
 ```
 
 Run migrations:
@@ -651,7 +656,7 @@ docs/roadmap.md
 
 Do not commit:
 
-- `.env`
+- `infra/.env`
 - Discord bot tokens
 - database URLs containing passwords
 - production channel IDs if they are considered private
@@ -670,15 +675,7 @@ git diff --staged
 
 ## License
 
-```text
-Proprietary
-```
-
-All rights reserved.
-
-This repository and its contents are private intellectual property unless explicitly stated otherwise.
-
-Unauthorized copying, redistribution, modification, publication, or commercial use is not permitted.
+zNews is licensed under the MIT License. See [LICENSE](LICENSE).
 
 ---
 
