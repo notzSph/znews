@@ -2,7 +2,7 @@
 
 ![Version](https://img.shields.io/badge/Version-2.0-blue.svg)
 ![Build](https://img.shields.io/badge/Build-passing-brightgreen.svg)
-![License](https://img.shields.io/badge/License-Proprietary-red.svg)
+![License](https://img.shields.io/badge/License-MIT-blue.svg)
 ![Runtime](https://img.shields.io/badge/Runtime-Node.js%2024-339933.svg)
 ![Language](https://img.shields.io/badge/Language-TypeScript-3178C6.svg)
 ![Database](https://img.shields.io/badge/Database-Postgres-4169E1.svg)
@@ -37,7 +37,7 @@ The system is focused on:
 
 ```text
 Build: Passing
-License: Proprietary
+License: MIT
 Runtime: Node.js 24
 Language: TypeScript
 Database: Postgres
@@ -64,84 +64,43 @@ Database: Postgres
 
 ```text
 .
+├── .gitignore
+├── CONTRIBUTING.md
+├── LICENSE
 ├── README.md
-├── docker-compose.yml
+├── SECURITY.md
 ├── docs
 │   └── roadmap.md
-├── package-lock.json
-├── package.json
-├── src
-│   ├── classifier
-│   │   └── rules.ts
-│   ├── config
-│   │   ├── env.ts
-│   │   └── sources.ts
-│   ├── db
-│   │   ├── client.ts
-│   │   ├── migrate.ts
-│   │   ├── migrations
-│   │   │   └── 001_initial.sql
-│   │   └── repository.ts
-│   ├── dedupe
-│   │   └── fingerprint.ts
-│   ├── digest
-│   │   └── dailyDigest.ts
-│   ├── discord
-│   │   └── poster.ts
-│   ├── domain
-│   │   ├── status.ts
-│   │   ├── taxonomy.ts
-│   │   └── types.ts
-│   ├── event
-│   │   └── createEvent.ts
-│   ├── feeds
-│   │   └── rss.ts
-│   ├── filter
-│   │   └── relevance.ts
-│   ├── format
-│   │   └── eventTape.ts
-│   ├── index.ts
-│   └── worker
-│       ├── dryRun.ts
-│       ├── dryRunReport.ts
-│       ├── pollLoop.ts
-│       ├── pollOnce.ts
-│       └── sourceHealth.ts
-├── test
-│   ├── classifier.test.ts
-│   ├── digest.test.ts
-│   ├── discordPoster.test.ts
-│   ├── dryRun.test.ts
-│   ├── dryRunReport.test.ts
-│   ├── env.test.ts
-│   ├── eventTape.test.ts
-│   ├── fingerprint.test.ts
-│   ├── relevance.test.ts
-│   ├── rss.test.ts
-│   ├── sourceHealth.test.ts
-│   └── status.test.ts
-├── tsconfig.json
-└── vitest.config.ts
+├── app
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── src
+│   ├── test
+│   ├── tsconfig.json
+│   └── vitest.config.ts
+├── infra
+│   ├── .env.example
+│   └── docker-compose.yml
 ```
 
 ---
 
 ## Architecture
 
-### `src/classifier/`
+### `app/src/classifier/`
 
 Rule-based market classification.
 
 This layer maps headlines and source context into market-relevant labels, ticker impact tags, macro themes, and status information.
 
-### `src/config/`
+### `app/src/config/`
 
 Runtime configuration and source registry.
 
 - `env.ts` handles explicit environment parsing.
 - `sources.ts` defines the active RSS/Atom/RDF source set.
 
-### `src/db/`
+### `app/src/db/`
 
 Postgres persistence layer.
 
@@ -152,53 +111,53 @@ Includes:
 - SQL migrations
 - repository functions for persistence and state access
 
-### `src/dedupe/`
+### `app/src/dedupe/`
 
 Headline fingerprinting and deduplication logic.
 
 Used to reduce exact headline overlap and obvious same-event duplication across sources.
 
-### `src/digest/`
+### `app/src/digest/`
 
 Daily digest generation.
 
 Builds higher-level summaries from collected events.
 
-### `src/discord/`
+### `app/src/discord/`
 
 Discord posting layer.
 
 Formats and sends event tape updates into configured Discord channels.
 
-### `src/domain/`
+### `app/src/domain/`
 
 Shared domain types, taxonomy definitions, and status labels.
 
-### `src/event/`
+### `app/src/event/`
 
 Event creation logic.
 
 Converts normalized feed items into internal event objects.
 
-### `src/feeds/`
+### `app/src/feeds/`
 
 RSS/Atom/RDF parsing.
 
 Uses `fast-xml-parser` for feed ingestion.
 
-### `src/filter/`
+### `app/src/filter/`
 
 Market relevance filtering.
 
 Drops low-signal headlines and keeps macro-sensitive, rates-sensitive, energy-sensitive, geopolitical, central-bank, and market-moving news.
 
-### `src/format/`
+### `app/src/format/`
 
 Event tape formatting.
 
 Responsible for compact, Discord-friendly event messages.
 
-### `src/worker/`
+### `app/src/worker/`
 
 Executable worker flows.
 
@@ -444,67 +403,67 @@ No runtime schema library is used in the core config path. Configuration validat
 Install dependencies:
 
 ```bash
-npm install
+npm --prefix app install
 ```
 
 Run database migrations:
 
 ```bash
-npm run migrate
+npm --prefix app run migrate
 ```
 
 Run one polling pass:
 
 ```bash
-npm run poll:once
+npm --prefix app run poll:once
 ```
 
 Run the polling worker continuously:
 
 ```bash
-npm run poll
+npm --prefix app run poll
 ```
 
 Dry-run latest feed output:
 
 ```bash
-npm run dry-run -- 10
+npm --prefix app run dry-run -- 10
 ```
 
 Dry-run live output:
 
 ```bash
-npm run dry-run:live -- 10
+npm --prefix app run dry-run:live -- 10
 ```
 
 Dry-run daily digest:
 
 ```bash
-npm run digest:dry-run -- 10
+npm --prefix app run digest:dry-run -- 10
 ```
 
 Check source health:
 
 ```bash
-npm run sources:check
+npm --prefix app run sources:check
 ```
 
 Run tests:
 
 ```bash
-npm test
+npm --prefix app test
 ```
 
 Run typecheck:
 
 ```bash
-npm run typecheck
+npm --prefix app run typecheck
 ```
 
 Run production build:
 
 ```bash
-npm run build
+npm --prefix app run build
 ```
 
 ---
@@ -514,7 +473,7 @@ npm run build
 Copy the example environment file and fill the values needed by the worker:
 
 ```bash
-cp .env.example .env
+cp infra/.env.example infra/.env
 ```
 
 Required once persistence is enabled:
@@ -532,12 +491,12 @@ DISCORD_TAPE_CHANNEL_ID=target_channel_id
 
 Driver boards use the zNews forum channel plus one fixed thread ID per board. Set
 `DISCORD_DRIVER_BOARD_CHANNEL_ID` and the ten
-`DISCORD_DRIVER_BOARD_*_THREAD_ID` values from `.env.example`, then run
-`npm run boards:setup` once to seed their editable board messages.
+`DISCORD_DRIVER_BOARD_*_THREAD_ID` values from `infra/.env.example`, then run
+`npm --prefix app run boards:setup` once to seed their editable board messages.
 
 Do not paste bot secrets into Discord or commit them into Git.
 
-Keep local secrets in `.env`.
+Keep local secrets in `infra/.env`.
 
 ---
 
@@ -546,25 +505,25 @@ Keep local secrets in `.env`.
 Start the optional local database:
 
 ```bash
-docker compose up -d postgres
+docker compose --env-file infra/.env -f infra/docker-compose.yml up -d postgres
 ```
 
 Run migrations:
 
 ```bash
-npm run migrate
+npm --prefix app run migrate
 ```
 
 Test a single polling pass:
 
 ```bash
-npm run poll:once
+npm --prefix app run poll:once
 ```
 
 Run continuously:
 
 ```bash
-npm run poll
+npm --prefix app run poll
 ```
 
 If Discord environment variables are missing, the worker still fetches, filters, deduplicates, clusters, and stores events, but skips posting.
@@ -576,13 +535,13 @@ If Discord environment variables are missing, the worker still fetches, filters,
 These commands do not require Postgres, Docker, Discord bot tokens, or VPS access:
 
 ```bash
-npm run dry-run -- 10
-npm run dry-run:live -- 10
-npm run digest:dry-run -- 10
-npm run sources:check
-npm test
-npm run typecheck
-npm run build
+npm --prefix app run dry-run -- 10
+npm --prefix app run dry-run:live -- 10
+npm --prefix app run digest:dry-run -- 10
+npm --prefix app run sources:check
+npm --prefix app test
+npm --prefix app run typecheck
+npm --prefix app run build
 ```
 
 Use these while tuning:
@@ -602,7 +561,7 @@ Use these while tuning:
 The repository includes Vitest coverage for the main internal modules:
 
 ```text
-test/
+app/test/
 ├── classifier.test.ts
 ├── digest.test.ts
 ├── discordPoster.test.ts
@@ -620,19 +579,19 @@ test/
 Run the test suite:
 
 ```bash
-npm test
+npm --prefix app test
 ```
 
 Run static type checks:
 
 ```bash
-npm run typecheck
+npm --prefix app run typecheck
 ```
 
 Run the build:
 
 ```bash
-npm run build
+npm --prefix app run build
 ```
 
 ---
@@ -651,7 +610,7 @@ docs/roadmap.md
 
 Do not commit:
 
-- `.env`
+- `infra/.env`
 - Discord bot tokens
 - database URLs containing passwords
 - production channel IDs if they are considered private
@@ -670,15 +629,7 @@ git diff --staged
 
 ## License
 
-```text
-Proprietary
-```
-
-All rights reserved.
-
-This repository and its contents are private intellectual property unless explicitly stated otherwise.
-
-Unauthorized copying, redistribution, modification, publication, or commercial use is not permitted.
+zNews is licensed under the MIT License. See [LICENSE](LICENSE).
 
 ---
 
